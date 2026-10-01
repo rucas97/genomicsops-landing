@@ -511,19 +511,19 @@ export default function Landing() {
               </div>
               <div className="space-y-2 text-sm">
                 <a
-                  href="mailto:sales@genomicsops.io"
+                  href="mailto:rez.anvaripour@gmail.com"
                   className="block text-slate-400 hover:text-slate-100 transition"
                 >
                   sales@genomicsops.io
                 </a>
                 <a
-                  href="mailto:support@genomicsops.io"
+                  href="mailto:rez.anvaripour@gmail.com"
                   className="block text-slate-400 hover:text-slate-100 transition"
                 >
                   support@genomicsops.io
                 </a>
                 <a
-                  href="mailto:security@genomicsops.io"
+                  href="mailto:rez.anvaripour@gmail.com"
                   className="block text-slate-400 hover:text-slate-100 transition"
                 >
                   security@genomicsops.io
