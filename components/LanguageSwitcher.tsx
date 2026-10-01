@@ -20,6 +20,10 @@ export default function LanguageSwitcher() {
     return () => document.removeEventListener("mousedown", onClick);
   }, [open]);
 
+  // Hide the switcher entirely when there's only one locale active.
+  // This is the current state while non-English is disabled.
+  if (LOCALES.length <= 1) return null;
+
   const current = LOCALES.find((l) => l.code === locale);
 
   return (

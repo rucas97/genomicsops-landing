@@ -7,10 +7,12 @@ export type LocaleMeta = {
 };
 
 export const LOCALES: LocaleMeta[] = [
-  { code: "en", label: "English",  dir: "ltr" },
-  { code: "fa", label: "فارسی",    dir: "rtl" },
-  { code: "ar", label: "العربية",  dir: "rtl" },
-  { code: "zh", label: "中文",     dir: "ltr" },
+  { code: "en", label: "English", dir: "ltr" },
+  // Non-English locales temporarily disabled pending native-speaker review.
+  // All translations remain in the file below — uncomment to re-enable.
+  // { code: "fa", label: "فارسی",   dir: "rtl" },
+  // { code: "ar", label: "العربية", dir: "rtl" },
+  // { code: "zh", label: "中文",    dir: "ltr" },
 ];
 
 export type NamedItem = { title: string; body: string };
