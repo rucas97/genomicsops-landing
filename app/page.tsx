@@ -1,166 +1,106 @@
+"use client";
+
 import Image from "next/image";
 import Reveal from "@/components/Reveal";
 import StatCounter from "@/components/StatCounter";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 const DOWNLOAD_URL =
-  "https://github.com/rucas97/genomicsops-releases/releases/latest";
+  "https://github.com/rucas97/genomicsops-releases/releases/download/v0.1.0/GenomicsOps_0.1.0_x64-setup.exe";
 
-const FEATURES = [
-  {
-    img: "/screenshots/variant-drawer.png",
-    title: "Transparent ACMG",
-    body: "Every classification shows exactly which criteria fired, the evidence behind each one, and what would change the call. No black-box scoring.",
-  },
-  {
-    img: "/screenshots/cnv-explorer.png",
-    title: "CNV and structural variants",
-    body: "Deletions, duplications, and inversions scored against the ClinGen / Riggs 2020 framework. Sections 1-3 are automated; 4-5 are curator-controlled.",
-  },
-  {
-    img: "/screenshots/trio-analysis.png",
-    title: "Family and trio inheritance",
-    body: "Import proband and parents. Inheritance patterns (de novo, maternal, paternal, homozygous) are computed per variant and feed ACMG criteria automatically.",
-  },
-  {
-    img: "/screenshots/cohort-pca.png",
-    title: "Cohort analysis",
-    body: "Group samples, run PCA clustering, gene enrichment, and shared variant analysis. Everything runs locally on the same SQLite database.",
-  },
-  {
-    img: "/screenshots/pipeline-demo.png",
-    title: "Nextflow pipeline runner",
-    body: "Bundled nf-core catalog (sarek, rnaseq, demo) wrapped in Docker. Runs without a system Nextflow install. Output VCFs import directly back as samples.",
-  },
-  {
-    img: "/screenshots/reports.png",
-    title: "Reports and exports",
-    body: "PDF with per-variant ACMG evidence. FHIR R4 DiagnosticReport plus Observations. HL7 v2 ORU^R01. Custom JSON for LIMS integration.",
-  },
+const DOC_FILES = [
+  "/docs/GenomicsOps-Catalog.pdf",
+  "/docs/GenomicsOps-GettingStarted.pdf",
+  "/docs/GenomicsOps-SLA.pdf",
 ];
 
-const TOUR = [
-  {
-    img: "/screenshots/setup-data.png",
-    title: "Point it at your reference data",
-    body: "First-run setup asks where your local ClinVar and gnomAD databases live. No cloud accounts. No credentials. No upload.",
-  },
-  {
-    img: "/screenshots/sample-details.png",
-    title: "See the whole sample at a glance",
-    body: "Variant count, quality metrics, top pathogenic findings, and MANE Select transcript for every variant.",
-  },
-  {
-    img: "/screenshots/variant-page.png",
-    title: "Work the variant list",
-    body: "Filter by gene, consequence, classification. Search live. Every row opens the full ACMG panel without losing your place.",
-  },
-  {
-    img: "/screenshots/license.png",
-    title: "Offline license activation",
-    body: "Signed tokens bound to your machine fingerprint. Copy the fingerprint, send it, paste back the token. No phone-home, no license server.",
-  },
+const FEATURE_IMAGES = [
+  "/screenshots/variant-drawer.png",
+  "/screenshots/cnv-explorer.png",
+  "/screenshots/trio-analysis.png",
+  "/screenshots/cohort-pca.png",
+  "/screenshots/pipeline-demo.png",
+  "/screenshots/reports.png",
 ];
 
-const PERSONAS = [
-  {
-    title: "Academic genomics labs",
-    body: "Run the full interpretation pipeline on a workstation, without depending on external services or IT-provisioned cloud accounts.",
-  },
-  {
-    title: "Bioinformatics core facilities",
-    body: "Give every PI a self-service workbench. Same ACMG engine, same audit trail, no per-seat cloud cost.",
-  },
-  {
-    title: "Biotech R&D teams",
-    body: "Keep candidate variant data on-prem. Every classification is reproducible, hash-stamped, and exportable to your LIMS.",
-  },
-  {
-    title: "Clinical labs (research use)",
-    body: "Evaluate the ACMG engine against your own curated corpus before adopting it for research pipelines.",
-  },
-];
-
-const FAQ = [
-  {
-    q: "Is it a clinical tool?",
-    a: "No. GenomicsOps is Research Use Only. It is not intended for clinical diagnosis, treatment, or patient management. Classifications follow ACMG/AMP 2015 guidelines applied automatically and must be verified by a qualified clinical scientist before any clinical use.",
-  },
-  {
-    q: "Does it work offline?",
-    a: "Yes. The desktop build runs entirely on your machine using local SQLite databases for ClinVar, gnomAD, and the NCBI MANE reference. Only optional enrichment (Ensembl VEP, PubMed) uses network, and both can be disabled.",
-  },
-  {
-    q: "How accurate is the ACMG classification?",
-    a: "On a 12,644-variant expert-curated corpus from ClinGen ERepo, the combining engine agrees with the curator's final classification 95.8% of the time: 97.9% for pathogenic, 98.8% for benign, 91.6% for VUS. Full methodology in docs/VALIDATION.md.",
-  },
-  {
-    q: "What operating systems are supported?",
-    a: "Windows 10 (build 19045 or later) and Windows 11, x64. macOS and Linux are on the roadmap but not yet available.",
-  },
-  {
-    q: "How does licensing work?",
-    a: "Licenses are cryptographically signed tokens bound to a machine fingerprint. Activation is fully offline: copy your fingerprint from the License page, send it to us, and paste back the signed token. No phone-home, no license server, no per-launch checks.",
-  },
-  {
-    q: "Can I use it with PHI?",
-    a: "The app is designed for research use with de-identified data. If you process PHI, ensure full-disk encryption is enabled, restrict OS user accounts, and follow your institution's IRB and HIPAA policies. The app itself does not encrypt the SQLite database.",
-  },
-];
-
-const DOCS = [
-  {
-    title: "Product catalog",
-    file: "/docs/GenomicsOps-Catalog.pdf",
-    size: "PDF",
-    body: "One-page overview of capabilities, validation numbers, and system requirements. Good for forwarding to a PI or lab manager.",
-  },
-  {
-    title: "Getting started guide",
-    file: "/docs/GenomicsOps-GettingStarted.pdf",
-    size: "PDF",
-    body: "Step-by-step install and first-run walkthrough. Covers VCF import, annotation, ACMG review, reporting, and troubleshooting.",
-  },
-  {
-    title: "Service level agreement",
-    file: "/docs/GenomicsOps-SLA.pdf",
-    size: "PDF",
-    body: "Support channels, response time commitments, update policy, and data handling terms for commercial licenses.",
-  },
+const TOUR_IMAGES = [
+  "/screenshots/setup-data.png",
+  "/screenshots/sample-details.png",
+  "/screenshots/variant-page.png",
+  "/screenshots/license.png",
 ];
 
 export default function Landing() {
+  const { t } = useLanguage();
+
   return (
     <main className="min-h-screen">
       {/* ============ NAV ============ */}
       <nav className="border-b border-slate-900 sticky top-0 z-50 bg-slate-950/90 backdrop-blur">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="#top" className="flex items-center gap-2.5">
-            <Image
-              src="/brand/logo.png"
-              alt="GenomicsOps"
-              width={140}
-              height={36}
-              className="h-9 w-auto"
-              priority
-            />
-          </a>
-          <div className="hidden md:flex items-center gap-8 text-sm text-slate-400">
-            <a href="#features" className="hover:text-slate-100 transition">
-              Features
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between gap-2 md:gap-4">
+
+          {/* ===== MOBILE LAYOUT: switcher | logo | download ===== */}
+          <div className="flex md:hidden items-center justify-between w-full">
+            <div className="flex-1 flex justify-start">
+              <LanguageSwitcher />
+            </div>
+            <a href="#top" className="flex items-center justify-center">
+              <Image
+                src="/brand/logo.png"
+                alt="GenomicsOps"
+                width={140}
+                height={36}
+                className="h-7 w-auto"
+                priority
+              />
             </a>
-            <a href="#tour" className="hover:text-slate-100 transition">
-              Product tour
-            </a>
-            <a href="#faq" className="hover:text-slate-100 transition">
-              FAQ
-            </a>
+            <div className="flex-1 flex justify-end">
+              <a
+                href={DOWNLOAD_URL}
+                className="lift px-3 py-2 rounded-md bg-emerald-500 text-slate-950 text-xs font-medium hover:bg-emerald-400 transition whitespace-nowrap"
+              >
+                {t.nav.download}
+              </a>
+            </div>
           </div>
-          <a
-            href={DOWNLOAD_URL}
-            className="lift px-4 py-2 rounded-md bg-emerald-500 text-slate-950 text-sm font-medium hover:bg-emerald-400 transition"
-          >
-            Download
-          </a>
+
+          {/* ===== DESKTOP LAYOUT: logo | links | switcher + download ===== */}
+          <div className="hidden md:flex items-center justify-between w-full gap-4">
+            <a href="#top" className="flex items-center gap-2 shrink-0">
+              <Image
+                src="/brand/logo.png"
+                alt="GenomicsOps"
+                width={140}
+                height={36}
+                className="h-9 w-auto"
+                priority
+              />
+            </a>
+
+            <div className="flex items-center gap-8 text-sm text-slate-400 flex-1 justify-center">
+              <a href="#features" className="hover:text-slate-100 transition">
+                {t.nav.features}
+              </a>
+              <a href="#tour" className="hover:text-slate-100 transition">
+                {t.nav.tour}
+              </a>
+              <a href="#faq" className="hover:text-slate-100 transition">
+                {t.nav.faq}
+              </a>
+            </div>
+
+            <div className="flex items-center gap-3 shrink-0">
+              <LanguageSwitcher />
+              <a
+                href={DOWNLOAD_URL}
+                className="lift px-4 py-2 rounded-md bg-emerald-500 text-slate-950 text-sm font-medium hover:bg-emerald-400 transition whitespace-nowrap"
+              >
+                {t.nav.download}
+              </a>
+            </div>
+          </div>
+
         </div>
       </nav>
 
@@ -169,29 +109,26 @@ export default function Landing() {
         <div className="max-w-3xl">
           <div className="hero-enter hero-d1 inline-flex items-center gap-2 text-xs uppercase tracking-widest text-emerald-400 mb-6">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            Research use only
+            {t.hero.badge}
           </div>
           <h1 className="hero-enter hero-d2 text-5xl md:text-6xl font-semibold tracking-tight leading-[1.05] mb-6">
-            Variant interpretation you can audit.
+            {t.hero.h1}
           </h1>
           <p className="hero-enter hero-d3 text-lg text-slate-400 leading-relaxed mb-8 max-w-2xl">
-            A Windows desktop workbench for genomics labs. Runs offline with
-            local ClinVar, gnomAD, and MANE. Every ACMG criterion is
-            transparent, every classification is reproducible, and your data
-            never leaves the machine.
+            {t.hero.subtitle}
           </p>
           <div className="hero-enter hero-d4 flex flex-wrap items-center gap-4">
             <a
               href={DOWNLOAD_URL}
               className="lift px-6 py-3 rounded-md bg-emerald-500 text-slate-950 font-medium hover:bg-emerald-400 transition"
             >
-              Download for Windows
+              {t.hero.ctaPrimary}
             </a>
             <a
               href="#tour"
               className="lift px-6 py-3 rounded-md border border-slate-800 text-slate-300 hover:bg-slate-900 transition"
             >
-              See the product
+              {t.hero.ctaSecondary}
             </a>
           </div>
         </div>
@@ -218,7 +155,7 @@ export default function Landing() {
                   <StatCounter value={95.8} decimals={1} suffix="%" />
                 </div>
                 <div className="text-xs text-slate-500 leading-relaxed">
-                  ACMG agreement on 12,644 curated variants
+                  {t.stats.acmg}
                 </div>
               </div>
             </Reveal>
@@ -228,7 +165,7 @@ export default function Landing() {
                   <StatCounter value={100} suffix="%" />
                 </div>
                 <div className="text-xs text-slate-500 leading-relaxed">
-                  CNV scoring on a 23-event ClinGen corpus
+                  {t.stats.cnv}
                 </div>
               </div>
             </Reveal>
@@ -238,7 +175,7 @@ export default function Landing() {
                   <StatCounter value={19363} separator />
                 </div>
                 <div className="text-xs text-slate-500 leading-relaxed">
-                  MANE Select transcripts bundled offline
+                  {t.stats.mane}
                 </div>
               </div>
             </Reveal>
@@ -248,7 +185,7 @@ export default function Landing() {
                   0
                 </div>
                 <div className="text-xs text-slate-500 leading-relaxed">
-                  Network calls required for core annotation
+                  {t.stats.offline}
                 </div>
               </div>
             </Reveal>
@@ -260,24 +197,23 @@ export default function Landing() {
       <section id="features" className="max-w-6xl mx-auto px-6 py-24">
         <Reveal className="mb-16 max-w-2xl">
           <div className="text-xs uppercase tracking-widest text-emerald-400 mb-3">
-            Capabilities
+            {t.features.label}
           </div>
           <h2 className="text-4xl font-semibold tracking-tight mb-4">
-            Everything a genomics lab needs. Offline.
+            {t.features.title}
           </h2>
           <p className="text-slate-400 leading-relaxed">
-            Built for labs that process PHI, work air-gapped, or simply refuse
-            to send variant data to someone else's servers.
+            {t.features.subtitle}
           </p>
         </Reveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURES.map((f, i) => (
+          {t.features.items.map((f, i) => (
             <Reveal key={f.title} delay={(i % 3) * 100} variant="scale">
               <div className="feature-card group rounded-lg border border-slate-800 bg-slate-900/40 overflow-hidden cursor-pointer h-full">
                 <div className="aspect-video bg-slate-950 border-b border-slate-800 overflow-hidden">
                   <Image
-                    src={f.img}
+                    src={FEATURE_IMAGES[i]}
                     alt={f.title}
                     width={800}
                     height={450}
@@ -301,26 +237,28 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-6 py-24">
           <Reveal className="mb-16 max-w-2xl">
             <div className="text-xs uppercase tracking-widest text-emerald-400 mb-3">
-              Product tour
+              {t.tour.label}
             </div>
             <h2 className="text-4xl font-semibold tracking-tight mb-4">
-              From install to first classification in fifteen minutes.
+              {t.tour.title}
             </h2>
             <p className="text-slate-400 leading-relaxed">
-              No cloud accounts. No reference downloads on first run. Point it
-              at your existing ClinVar and gnomAD databases and it works.
+              {t.tour.subtitle}
             </p>
           </Reveal>
 
           <div className="space-y-20">
-            {TOUR.map((step, i) => {
+            {t.tour.steps.map((step, i) => {
               const flip = i % 2 === 1;
               return (
                 <div
                   key={step.title}
                   className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
                 >
-                  <Reveal variant={flip ? "right" : "left"} className={flip ? "md:order-2" : ""}>
+                  <Reveal
+                    variant={flip ? "right" : "left"}
+                    className={flip ? "md:order-2" : ""}
+                  >
                     <div className="text-xs text-emerald-400 font-mono mb-2">
                       0{i + 1}
                     </div>
@@ -338,7 +276,7 @@ export default function Landing() {
                   >
                     <div className="feature-card rounded-lg border border-slate-800 overflow-hidden bg-slate-900">
                       <Image
-                        src={step.img}
+                        src={TOUR_IMAGES[i]}
                         alt={step.title}
                         width={1200}
                         height={750}
@@ -357,14 +295,14 @@ export default function Landing() {
       <section className="max-w-6xl mx-auto px-6 py-24">
         <Reveal className="mb-16 max-w-2xl">
           <div className="text-xs uppercase tracking-widest text-emerald-400 mb-3">
-            Who it's for
+            {t.personas.label}
           </div>
           <h2 className="text-4xl font-semibold tracking-tight mb-4">
-            Built for labs that own their data.
+            {t.personas.title}
           </h2>
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {PERSONAS.map((p, i) => (
+          {t.personas.items.map((p, i) => (
             <Reveal key={p.title} delay={(i % 2) * 100} variant="up">
               <div className="feature-card rounded-lg border border-slate-800 bg-slate-900/40 p-6 h-full">
                 <h3 className="font-medium mb-2">{p.title}</h3>
@@ -382,14 +320,14 @@ export default function Landing() {
         <div className="max-w-3xl mx-auto px-6 py-24">
           <Reveal className="mb-12">
             <div className="text-xs uppercase tracking-widest text-emerald-400 mb-3">
-              FAQ
+              {t.faq.label}
             </div>
             <h2 className="text-4xl font-semibold tracking-tight mb-4">
-              Common questions
+              {t.faq.title}
             </h2>
           </Reveal>
           <div className="space-y-6">
-            {FAQ.map((item, i) => (
+            {t.faq.items.map((item, i) => (
               <Reveal key={item.q} delay={i * 60}>
                 <div className="border-b border-slate-900 pb-6 last:border-0">
                   <h3 className="font-medium mb-2.5">{item.q}</h3>
@@ -403,27 +341,24 @@ export default function Landing() {
         </div>
       </section>
 
-{/* ============ DOCUMENTATION ============ */}
+      {/* ============ DOCUMENTATION ============ */}
       <section className="border-t border-slate-900 bg-slate-950">
         <div className="max-w-6xl mx-auto px-6 py-24">
           <Reveal className="mb-12 max-w-2xl">
             <div className="text-xs uppercase tracking-widest text-emerald-400 mb-3">
-              Documentation
+              {t.docs.label}
             </div>
             <h2 className="text-4xl font-semibold tracking-tight mb-4">
-              Everything a buyer asks for, before they ask.
+              {t.docs.title}
             </h2>
-            <p className="text-slate-400 leading-relaxed">
-              No email capture, no gated PDFs. Read or download any of these
-              before you install.
-            </p>
+            <p className="text-slate-400 leading-relaxed">{t.docs.subtitle}</p>
           </Reveal>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {DOCS.map((doc, i) => (
+            {t.docs.items.map((doc, i) => (
               <Reveal key={doc.title} delay={i * 100} variant="scale">
                 <a
-                  href={doc.file}
+                  href={DOC_FILES[i]}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="feature-card group block rounded-lg border border-slate-800 bg-slate-900/40 p-6 hover:border-emerald-900/60 transition h-full"
@@ -447,7 +382,7 @@ export default function Landing() {
                       </svg>
                     </div>
                     <div className="text-[10px] uppercase tracking-widest text-slate-500 font-mono">
-                      {doc.size}
+                      PDF
                     </div>
                   </div>
                   <h3 className="font-medium mb-2 group-hover:text-emerald-400 transition">
@@ -457,7 +392,7 @@ export default function Landing() {
                     {doc.body}
                   </p>
                   <div className="text-xs text-emerald-400 flex items-center gap-1.5">
-                    Open PDF
+                    {t.docs.openPdf}
                     <svg
                       width="12"
                       height="12"
@@ -484,20 +419,19 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto px-6 py-24 text-center">
           <Reveal variant="scale">
             <h2 className="text-4xl font-semibold tracking-tight mb-4">
-              Try it on your own variants.
+              {t.cta.title}
             </h2>
             <p className="text-slate-400 mb-8 max-w-xl mx-auto leading-relaxed">
-              Free to evaluate. Runs on any Windows workstation. No account, no
-              upload, no cloud dependency.
+              {t.cta.body}
             </p>
             <a
               href={DOWNLOAD_URL}
               className="lift inline-block px-8 py-3.5 rounded-md bg-emerald-500 text-slate-950 font-medium hover:bg-emerald-400 transition"
             >
-              Download for Windows
+              {t.cta.button}
             </a>
             <p className="text-xs text-slate-500 mt-4">
-              Windows 10 (19045+) or Windows 11 · x64 · ~220 MB
+              {t.cta.requirements}
             </p>
           </Reveal>
         </div>
@@ -509,67 +443,71 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-10">
             <div className="md:col-span-2 lg:col-span-2">
               <div className="flex items-center gap-2.5 mb-3">
-                <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="font-medium">GenomicsOps</span>
+                <Image
+                  src="/brand/logo.png"
+                  alt="GenomicsOps"
+                  width={120}
+                  height={32}
+                  className="h-8 w-auto"
+                />
               </div>
               <p className="text-sm text-slate-500 leading-relaxed max-w-sm">
-                Variant interpretation workbench for research genomics.
-                Windows desktop. Offline-first.
+                {t.footer.tagline}
               </p>
             </div>
             <div>
               <div className="text-xs uppercase tracking-widest text-slate-500 mb-3">
-                Product
+                {t.footer.productLabel}
               </div>
               <div className="space-y-2 text-sm">
                 <a
                   href={DOWNLOAD_URL}
                   className="block text-slate-400 hover:text-slate-100 transition"
                 >
-                  Download
+                  {t.footer.download}
                 </a>
                 <a
                   href="#features"
                   className="block text-slate-400 hover:text-slate-100 transition"
                 >
-                  Features
+                  {t.footer.features}
                 </a>
                 <a
                   href="#faq"
                   className="block text-slate-400 hover:text-slate-100 transition"
                 >
-                  FAQ
+                  {t.footer.faq}
                 </a>
               </div>
             </div>
             <div>
               <div className="text-xs uppercase tracking-widest text-slate-500 mb-3">
-                Documentation
+                {t.footer.docsLabel}
               </div>
               <div className="space-y-2 text-sm">
                 <a
                   href="/docs/GenomicsOps-GettingStarted.pdf"
                   className="block text-slate-400 hover:text-slate-100 transition"
                 >
-                  Getting started
+                  {t.footer.gettingStarted}
                 </a>
                 <a
                   href="/docs/GenomicsOps-Catalog.pdf"
                   className="block text-slate-400 hover:text-slate-100 transition"
                 >
-                  Product catalog
+                  {t.footer.catalog}
                 </a>
                 <a
                   href="/docs/GenomicsOps-SLA.pdf"
                   className="block text-slate-400 hover:text-slate-100 transition"
                 >
-                  SLA
+                  {t.footer.sla}
                 </a>
               </div>
             </div>
             <div>
               <div className="text-xs uppercase tracking-widest text-slate-500 mb-3">
-                Contact
+                {t.footer.contactLabel}
               </div>
               <div className="space-y-2 text-sm">
                 <a
@@ -594,10 +532,8 @@ export default function Landing() {
             </div>
           </div>
           <div className="border-t border-slate-900 pt-6 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs text-slate-500">
-            <div>© 2026 GenomicsOps. All rights reserved.</div>
-            <div className="text-amber-400/70">
-              Research Use Only · Not for clinical diagnostic use
-            </div>
+            <div>{t.footer.copyright}</div>
+            <div className="text-amber-400/70">{t.footer.ruo}</div>
           </div>
         </div>
       </footer>
